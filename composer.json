@@ -1,0 +1,30 @@
+{
+    "name": "bondsa/gendiff",
+    "bin": "bin/gendiff",
+    "description": "Generate diff between two documents (json, yaml, ini)",
+    "type": "project",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Sergei Bondarenko",
+            "email": "andbondsa@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Gendiff\\": "src"
+        },
+        "files": [
+            "src/Cli.php"
+        ]
+    },
+    "scripts": {
+        "phpcs": "phpcs"
+    },
+    "require": {
+        "docopt/docopt": "^1.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.3"
+    }
+}
