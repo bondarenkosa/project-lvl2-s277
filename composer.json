@@ -1,6 +1,8 @@
 {
     "name": "bondsa/gendiff",
-    "bin": "bin/gendiff",
+    "bin": [
+        "bin/gendiff"
+    ],
     "description": "Generate diff between two documents (json, yaml, ini)",
     "type": "project",
     "license": "GPL-3.0-or-later",
