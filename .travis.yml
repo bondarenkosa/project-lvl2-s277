@@ -1,9 +1,15 @@
+env:
+  global:
+    secure: Iz3uEj0ZDED25QUAXfIjVuUl7Z/oqTEDHH5z69Smqex7yVcc/bPdXYgd1PkInW6pMStylHROwJZb7mMtQDm9L0wEEalvToDTCGhHAPRc7nsf7zsX4j58ChnFamrhs2nGLR4O0YuFRleKnwiy9U54cQFKX8Oskil/jkKLPgCpsFcChCN+pscz+LmfLhyTydOM0OXa6SkZuchQ2soCFwcamOusB918JtyVgSw2+DV58157doRXE886oMk1jGIL2Tj64ZNxGMr9WU1iNm2tBDeePVX8ZSn3kTR8ZkzyhDMgKlvEzhG7Hph+pIz6bjRLTXskDmVYLBHUaHCEUiCSbmGMqUg4nCM7i9dycb7Oby8+UKDts8XXGxStj8lr1z/uIWivEBoeMKCWlVAO0nLhe4uT0iY313jH019IDR2FguGyow0s8rzlx7q9oZXzRz5WRstfAr3aMhxFoJifygMqI+AEEKG9dXpxhilkqaqgBrT/TUrJRHEezwDGIYGMD/sxGOiI8NnM4BrlE5BIY9UmZj2QNWAsXsppGMUSMrc0RQt7LSkXJoq9XboYCon6lb+MXLczV+wLwK+PGH7BwnWo5IoUBgwX/+FfcLyvjXXpiyFoDUYonNqeo8yuDhLyWB2WluHKp5ZkrChmpL6KSjx38f98k8fFMvvl27/G5LGA9UzyQ4g=
 language: php
 php:
-  - '7.1'
+- '7.1'
 
 install:
-  - composer self-update
-  - make install
+- composer self-update
+- make install
 
-script: make lint
+script: make lint test
+
+after_script:
+  - vendor/bin/test-reporter
