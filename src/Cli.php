@@ -24,5 +24,6 @@ function run()
     if (isset($args["<firstFile>"])) {
         $diff = genDiff($args["<firstFile>"], $args["<secondFile>"]);
         print_r($diff);
+        echo PHP_EOL;
     }
 }

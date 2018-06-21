@@ -11,9 +11,7 @@ function genDiff(string $firstFile, string $secondFile, string $format = "pretty
     $keys = getKeys($firstCollection, $secondCollection);
     $keysDiff = getKeysDiff($keys, $firstCollection, $secondCollection);
 
-    return "{" . PHP_EOL
-        . implode(PHP_EOL, $keysDiff) . PHP_EOL
-        . "}";
+    return createView($keysDiff);
 }
 
 function getCollection(string $filePath)
@@ -35,4 +33,11 @@ function getKeysDiff(array $keys, array $firstCollection, array $secondCollectio
         $acc[] = new KeyDiff($key, $firstCollection, $secondCollection);
         return $acc;
     }, []);
+}
+
+function createView(array $keysDiff)
+{
+    return "{" . PHP_EOL
+        . implode(PHP_EOL, $keysDiff) . PHP_EOL
+        . "}";
 }
