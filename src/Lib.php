@@ -10,10 +10,10 @@ function genDiff(string $firstFile, string $secondFile, string $format = "pretty
     $secondCollection = getCollection($secondFile);
     $keys = getKeys($firstCollection, $secondCollection);
     $keysDiff = getKeysDiff($keys, $firstCollection, $secondCollection);
-    
+
     return "{" . PHP_EOL
         . implode(PHP_EOL, $keysDiff) . PHP_EOL
-        . "}" .  PHP_EOL;
+        . "}";
 }
 
 function getCollection(string $filePath)
