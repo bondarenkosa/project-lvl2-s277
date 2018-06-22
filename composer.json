@@ -20,6 +20,7 @@
         "files": [
             "src/Cli.php",
             "src/Lib.php",
+            "src/Parsers.php",
             "src/KeyDiff.php"
         ]
     },
