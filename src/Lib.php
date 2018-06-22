@@ -2,6 +2,7 @@
 
 namespace Gendiff\Lib;
 
+use Symfony\Component\Yaml\Yaml;
 use Gendiff\KeyDiff;
 
 function genDiff(string $firstFile, string $secondFile, string $format = "pretty")
@@ -16,8 +17,14 @@ function genDiff(string $firstFile, string $secondFile, string $format = "pretty
 
 function getCollection(string $filePath)
 {
+    $extension = pathinfo($filePath, PATHINFO_EXTENSION);
     $data = file_get_contents($filePath);
-    return json_decode($data, true);
+    switch ($extension) {
+        case "json":
+            return json_decode($data, true);
+        case "yml":
+            return (array) Yaml::parse($data, Yaml::PARSE_OBJECT_FOR_MAP);
+    }
 }
 
 function getKeys(array $firstCollection, array $secondCollection)

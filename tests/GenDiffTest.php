@@ -7,6 +7,22 @@ use function Gendiff\Lib\genDiff;
 
 class GenDiffTest extends TestCase
 {
+    protected $root;
+
+    protected function setUp()
+    {
+        $this->root = vfsStream::setup();
+        $this->diffPretty = <<<EOD
+{
+    host: hexlet.io
+  + timeout: 20
+  - timeout: 50
+  - proxy: 123.234.53.22
+  + verbose: true
+}
+EOD;
+    }
+
     public function testGenDiffJson()
     {
         $before = <<<EOD
@@ -23,24 +39,35 @@ EOD;
   "host": "hexlet.io"
 }
 EOD;
-        $diff = <<<EOD
-{
-    host: hexlet.io
-  + timeout: 20
-  - timeout: 50
-  - proxy: 123.234.53.22
-  + verbose: true
-}
+        $firstFile = $this->makeFile('before.json', $before);
+        $secondFile = $this->makeFile('after.json', $after);
+
+        $this->assertEquals($this->diffPretty, genDiff($firstFile->url(), $secondFile->url()));
+    }
+
+    public function testGenDiffYml()
+    {
+        $before = <<<EOD
+host: hexlet.io
+timeout: 50
+proxy: 123.234.53.22
 EOD;
+        $after = <<<EOD
+timeout: 20
+verbose: true
+host: hexlet.io
+EOD;
+        $firstFile = $this->makeFile('before.yml', $before);
+        $secondFile = $this->makeFile('after.yml', $after);
 
-        $root = vfsStream::setup();
-        $firstFile = vfsStream::newFile('before.json')->at($root);
-        $firstFile->setContent($before);
-        $pathToFile1 = $firstFile->url();
-        $secondFile = vfsStream::newFile('after.json')->at($root);
-        $secondFile->setContent($after);
-        $pathToFile2 = $secondFile->url();
+        $this->assertEquals($this->diffPretty, genDiff($firstFile->url(), $secondFile->url()));
+    }
 
-        $this->assertEquals($diff, genDiff($pathToFile1, $pathToFile2));
+    protected function makeFile(string $name, string $data)
+    {
+        $file = vfsStream::newFile($name)->at($this->root);
+        $file->setContent($data);
+
+        return $file;
     }
 }
