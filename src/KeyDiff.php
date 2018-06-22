@@ -1,48 +1,66 @@
 <?php
 
-namespace Gendiff;
+namespace Gendiff\KeyDiff;
 
-class KeyDiff
+function makeKeyDiff(string $key, array $firstCollection, array $secondCollection)
 {
-    private $name;
-    private $firstValue;
-    private $secondValue;
-    private $status;
-
-    public function __construct(string $key, array $firstCollection, array $secondCollection)
-    {
-        $this->name = $key;
-        $this->firstValue = isset($firstCollection[$key]) ? $firstCollection[$key] : null;
-        $this->secondValue = isset($secondCollection[$key]) ? $secondCollection[$key] : null;
-        $this->status = $this->calculateStatus($firstCollection, $secondCollection);
+    $firstValue = isset($firstCollection[$key]) ? $firstCollection[$key] : null;
+    $secondValue = isset($secondCollection[$key]) ? $secondCollection[$key] : null;
+    if (!array_key_exists($key, $firstCollection)) {
+        $status = "added";
+    } elseif (!array_key_exists($key, $secondCollection)) {
+        $status = "deleted";
+    } elseif ($firstCollection[$key] === $secondCollection[$key]) {
+        $status = "unchanged";
+    } else {
+        $status = "changed";
     }
 
-    public function __toString()
-    {
-        $firstValue = is_string($this->firstValue) ? $this->firstValue : json_encode($this->firstValue);
-        $secondValue = is_string($this->secondValue) ? $this->secondValue : json_encode($this->secondValue);
-        switch ($this->status) {
-            case "added":
-                return "  + {$this->name}: {$secondValue}";
-            case "deleted":
-                return "  - {$this->name}: {$firstValue}";
-            case "changed":
-                return "  + {$this->name}: {$secondValue}" . PHP_EOL
-                    . "  - {$this->name}: {$firstValue}";
-            case "unchanged":
-                return "    {$this->name}: {$firstValue}";
-        }
-    }
+    return [
+        "name" => $key,
+        "firstValue" => $firstValue,
+        "secondValue" => $secondValue,
+        "status" => $status
+    ];
+}
 
-    private function calculateStatus($firstCollection, $secondCollection)
-    {
-        if (!array_key_exists($this->name, $firstCollection)) {
-            return "added";
-        }
-        if (!array_key_exists($this->name, $secondCollection)) {
-            return "deleted";
-        }
+function getFirstValue($keyDiff)
+{
+    return $keyDiff['firstValue'];
+}
 
-        return $firstCollection[$this->name] === $secondCollection[$this->name] ? "unchanged" : "changed";
+function getSecondValue($keyDiff)
+{
+    return $keyDiff['secondValue'];
+}
+
+function getKeyDiffName($keyDiff)
+{
+    return $keyDiff['name'];
+}
+
+function getKeyDiffStatus($keyDiff)
+{
+    return $keyDiff['status'];
+}
+
+function keyDiffToString($keyDiff)
+{
+    $key = getKeyDiffName($keyDiff);
+    $status = getKeyDiffStatus($keyDiff);
+    $firstValue = getFirstValue($keyDiff);
+    $secondValue = getSecondValue($keyDiff);
+    $before = is_string($firstValue) ? $firstValue : json_encode($firstValue);
+    $after = is_string($secondValue) ? $secondValue : json_encode($secondValue);
+    switch ($status) {
+        case "added":
+            return "  + {$key}: {$after}";
+        case "deleted":
+            return "  - {$key}: {$before}";
+        case "changed":
+            return "  + {$key}: {$after}" . PHP_EOL
+                . "  - {$key}: {$before}";
+        case "unchanged":
+            return "    {$key}: {$before}";
     }
 }
