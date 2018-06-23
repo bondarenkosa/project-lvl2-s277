@@ -2,65 +2,58 @@
 
 namespace Gendiff\KeyDiff;
 
-function makeKeyDiff(string $key, array $firstCollection, array $secondCollection)
+function makeKeyDiff(string $key, array $dataBefore, array $dataAfter)
 {
-    $firstValue = isset($firstCollection[$key]) ? $firstCollection[$key] : null;
-    $secondValue = isset($secondCollection[$key]) ? $secondCollection[$key] : null;
-    if (!array_key_exists($key, $firstCollection)) {
-        $status = "added";
-    } elseif (!array_key_exists($key, $secondCollection)) {
-        $status = "deleted";
-    } elseif ($firstCollection[$key] === $secondCollection[$key]) {
-        $status = "unchanged";
+    if (!array_key_exists($key, $dataBefore)) {
+        $type = "added";
+        $valueBefore = null;
+        $valueAfter = $dataAfter[$key];
+    } elseif (!array_key_exists($key, $dataAfter)) {
+        $type = "deleted";
+        $valueBefore = $dataBefore[$key];
+        $valueAfter = null;
+    } elseif ($dataBefore[$key] === $dataAfter[$key]) {
+        $type = "unchanged";
+        $valueBefore = $dataBefore[$key];
+        $valueAfter = $dataAfter[$key];
     } else {
-        $status = "changed";
+        $type = "changed";
+        $valueBefore = $dataBefore[$key];
+        $valueAfter = $dataAfter[$key];
     }
 
     return [
         "name" => $key,
-        "firstValue" => $firstValue,
-        "secondValue" => $secondValue,
-        "status" => $status
+        "valueBefore" => $valueBefore,
+        "valueAfter" => $valueAfter,
+        "type" => $type
     ];
-}
-
-function getFirstValue($keyDiff)
-{
-    return $keyDiff['firstValue'];
-}
-
-function getSecondValue($keyDiff)
-{
-    return $keyDiff['secondValue'];
-}
-
-function getKeyDiffName($keyDiff)
-{
-    return $keyDiff['name'];
-}
-
-function getKeyDiffStatus($keyDiff)
-{
-    return $keyDiff['status'];
 }
 
 function keyDiffToString($keyDiff)
 {
-    $key = getKeyDiffName($keyDiff);
-    $status = getKeyDiffStatus($keyDiff);
-    $firstValue = getFirstValue($keyDiff);
-    $secondValue = getSecondValue($keyDiff);
-    $before = is_string($firstValue) ? $firstValue : json_encode($firstValue);
-    $after = is_string($secondValue) ? $secondValue : json_encode($secondValue);
-    switch ($status) {
+    $type = $keyDiff["type"];
+    $key = $keyDiff["name"];
+    $valueBefore = valueToString($keyDiff["valueBefore"]);
+    $valueAfter = valueToString($keyDiff["valueAfter"]);
+    switch ($type) {
         case "added":
-            return "  + {$key}: {$after}";
+            return "  + {$key}: {$valueAfter}";
         case "deleted":
-            return "  - {$key}: {$before}";
+            return "  - {$key}: {$valueBefore}";
         case "changed":
-            return "  + {$key}: {$after}" . PHP_EOL
-                . "  - {$key}: {$before}";
+            return "  + {$key}: {$valueAfter}" . PHP_EOL
+                . "  - {$key}: {$valueBefore}";
         case "unchanged":
-            return "    {$key}: {$before}";
+            return "    {$key}: {$valueBefore}";
     }
+}
+
+function valueToString($value)
+{
+    if (is_null($value) || is_bool($value)) {
+        return json_encode($value);
+    }
+
+    return $value;
 }

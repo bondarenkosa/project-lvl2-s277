@@ -2,7 +2,7 @@
 
 namespace Gendiff\Cli;
 
-use function Gendiff\Lib\genDiff;
+use function Gendiff\genDiff;
 
 const HELP = <<<DOC
 Generate diff
@@ -24,6 +24,5 @@ function run()
     if (isset($args["<firstFile>"])) {
         $diff = genDiff($args["<firstFile>"], $args["<secondFile>"]);
         print_r($diff);
-        echo PHP_EOL;
     }
 }

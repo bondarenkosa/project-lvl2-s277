@@ -2,19 +2,10 @@
 namespace Gendiff\Tests;
 
 use PHPUnit\Framework\TestCase;
-use function Gendiff\Lib\genDiff;
+use function Gendiff\genDiff;
 
 class GenDiffTest extends TestCase
 {
-    protected $diffPretty = <<<EOD
-{
-    host: hexlet.io
-  + timeout: 20
-  - timeout: 50
-  - proxy: 123.234.53.22
-  + verbose: true
-}
-EOD;
     protected $fixturesPath = "tests" . DIRECTORY_SEPARATOR .  "fixtures". DIRECTORY_SEPARATOR;
 
     /**
@@ -30,9 +21,11 @@ EOD;
 
     public function additionProvider()
     {
+        $diffPretty = file_get_contents($this->fixturesPath . "expected");
+
         return [
-            [$this->diffPretty, "json"],
-            [$this->diffPretty, "yml"]
+            [$diffPretty, "json"],
+            [$diffPretty, "yml"]
         ];
     }
 }
