@@ -20,7 +20,8 @@
         "files": [
             "src/Cli.php",
             "src/Lib.php",
-            "src/Parsers.php"
+            "src/Parsers.php",
+            "src/Renderers.php"
         ]
     },
     "scripts": {

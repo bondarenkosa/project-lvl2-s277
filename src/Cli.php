@@ -22,7 +22,7 @@ function run()
     $args = (new \Docopt\Handler)->handle(HELP);
 
     if (isset($args["<firstFile>"])) {
-        $diff = genDiff($args["<firstFile>"], $args["<secondFile>"]);
+        $diff = genDiff($args["<firstFile>"], $args["<secondFile>"], $args["--format"]);
         print_r($diff);
     }
 }
