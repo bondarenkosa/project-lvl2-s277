@@ -2,31 +2,29 @@
 
 namespace Gendiff\Renderers;
 
-const RENDERERS = [
-    'pretty' => __NAMESPACE__ . '\renderPrettyDiff'
-];
-
 function getRenderer(string $format)
 {
-    return RENDERERS[$format]();
+    $renderers = [
+        'pretty' => function ($data) {
+            return renderPrettyDiff($data);
+        },
+        'plain' => function ($data) {
+            return renderPlainDiff($data);
+        }
+    ];
+
+    return $renderers[$format];
 }
 
-function renderPrettyDiff()
-{
-    return function ($data) {
-        return createPrettyView($data);
-    };
-}
-
-function createPrettyView($ast)
+function renderPrettyDiff($ast)
 {
     $renderAst = function ($ast, $indent = "  ") use (&$renderAst) {
-        $iter = function ($node) use (&$iter, &$renderAst, $indent) {
+        $iter = function ($node) use (&$iter, &$renderAst, &$prepareValueToRender, $indent) {
             $key = $node["key"];
             $type = $node["type"];
             $children = $node["children"];
-            $beforeValue = valueToString($node["beforeValue"], "{$indent}  ");
-            $afterValue = valueToString($node["afterValue"], "{$indent}  ");
+            $beforeValue = $prepareValueToRender($node["beforeValue"], "{$indent}  ");
+            $afterValue = $prepareValueToRender($node["afterValue"], "{$indent}  ");
             switch ($type) {
                 case "nested":
                     return "{$indent}  {$key}: {" . PHP_EOL
@@ -44,6 +42,30 @@ function createPrettyView($ast)
             }
         };
 
+        $prepareValueToRender = function ($value, $indent = "") use (&$arrayToString) {
+            if (is_null($value) || is_bool($value)) {
+                return strtolower(var_export($value, true));
+            }
+
+            if (is_array($value)) {
+                return $arrayToString($value, $indent);
+            }
+
+            return $value;
+        };
+
+        $arrayToString = function (array $arr, $indent) use (&$arrayToString) {
+            $result = array_map(function ($key, $value) use ($indent) {
+                if (is_array($value)) {
+                    $value = $arrayToString($value, "{$indent}    ");
+                }
+
+                return "{$indent}    {$key}: {$value}";
+            }, array_keys($arr), $arr);
+
+            return "{" . PHP_EOL . implode(PHP_EOL, $result) . PHP_EOL . "{$indent}}";
+        };
+
         return implode(PHP_EOL, array_map($iter, $ast));
     };
 
@@ -52,29 +74,40 @@ function createPrettyView($ast)
         . "}" . PHP_EOL;
 }
 
-
-function valueToString($value, $indent)
+function renderPlainDiff($ast)
 {
-    if (is_null($value) || is_bool($value)) {
-        return json_encode($value);
-    }
+    $renderAst = function ($ast, $parent = "") use (&$renderAst) {
+        $iter = function ($node) use (&$iter, &$renderAst, &$prepareValueToRender, $parent) {
+            $key = $node["key"];
+            $type = $node["type"];
+            $children = $node["children"];
+            $beforeValue = $prepareValueToRender($node["beforeValue"]);
+            $afterValue = $prepareValueToRender($node["afterValue"]);
+            switch ($type) {
+                case "nested":
+                    return $renderAst($children, "{$parent}{$key}.");
+                case "added":
+                    return "Property '{$parent}{$key}' was {$type} with value: '{$afterValue}'" . PHP_EOL;
+                case "deleted":
+                    return "Property '{$parent}{$key}' was {$type}" . PHP_EOL;
+                case "changed":
+                    return "Property '{$parent}{$key}' was {$type}. From '${beforeValue}' to '{$afterValue}'" . PHP_EOL;
+            }
+        };
 
-    if (is_array($value)) {
-        return arrayToString($value, $indent);
-    }
+        $prepareValueToRender = function ($value) {
+            if (is_null($value) || is_bool($value)) {
+                return strtolower(var_export($value, true));
+            }
+            if (is_array($value)) {
+                return 'complex value';
+            }
 
-    return $value;
-}
+            return $value;
+        };
 
-function arrayToString(array $arr, $indent)
-{
-    $result = array_map(function ($key, $value) use ($indent) {
-        if (is_array($value)) {
-            $value = arrayToString($value, "{$indent}    ");
-        }
+        return implode("", array_map($iter, $ast));
+    };
 
-        return "{$indent}    {$key}: {$value}";
-    }, array_keys($arr), $arr);
-
-    return "{" . PHP_EOL . implode(PHP_EOL, $result) . PHP_EOL . "{$indent}}";
+    return $renderAst($ast);
 }

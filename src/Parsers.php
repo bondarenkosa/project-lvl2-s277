@@ -4,27 +4,16 @@ namespace Gendiff\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
-const PARSERS = [
-    'json' => __NAMESPACE__ . "\jsonParse",
-    'yaml' => __NAMESPACE__ . "\yamlParse",
-    'yml' => __NAMESPACE__ . "\yamlParse"
-];
-
 function getParser(string $format)
 {
-    return PARSERS[$format]();
-}
+    $parsers = [
+        'json' => function ($data) {
+            return json_decode($data, true);
+        },
+        'yml' => function ($data) {
+            return Yaml::parse($data);
+        }
+    ];
 
-function jsonParse()
-{
-    return function ($data) {
-        return json_decode($data, true);
-    };
-}
-
-function yamlParse()
-{
-    return function ($data) {
-        return Yaml::parse($data);
-    };
+    return $parsers[$format];
 }

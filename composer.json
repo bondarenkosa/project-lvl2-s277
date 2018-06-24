@@ -3,7 +3,7 @@
     "bin": [
         "bin/gendiff"
     ],
-    "description": "Generate diff between two documents (json, yaml, ini)",
+    "description": "Generate diff between two documents (json, yaml)",
     "type": "project",
     "license": "GPL-3.0-or-later",
     "authors": [
