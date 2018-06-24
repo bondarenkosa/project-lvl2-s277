@@ -11,21 +11,22 @@ class GenDiffTest extends TestCase
     /**
      * @dataProvider additionProvider
      */
-    public function testGenDiff($expected, $extension)
+    public function testGenDiff($pathToExpectedData, $nameFile1, $nameFile2)
     {
-        $pathToFile1 = $this->fixturesPath . "before.{$extension}";
-        $pathToFile2 = $this->fixturesPath . "after.{$extension}";
+        $expected = file_get_contents($this->fixturesPath . $pathToExpectedData);
+        $pathToFile1 = $this->fixturesPath . $nameFile1;
+        $pathToFile2 = $this->fixturesPath . $nameFile2;
 
         $this->assertEquals($expected, genDiff($pathToFile1, $pathToFile2));
     }
 
     public function additionProvider()
     {
-        $diffPretty = file_get_contents($this->fixturesPath . "expected");
-
         return [
-            [$diffPretty, "json"],
-            [$diffPretty, "yml"]
+            ["expected", "before.json", "after.json"],
+            ["expected", "before.yml", "after.yml"],
+            ["nestedExpected", "nestedBefore.json", "nestedAfter.json"],
+            ["nestedExpected", "nestedBefore.yml", "nestedAfter.yml"]
         ];
     }
 }

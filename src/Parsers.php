@@ -25,6 +25,6 @@ function jsonParse()
 function yamlParse()
 {
     return function ($data) {
-        return (array) Yaml::parse($data, Yaml::PARSE_OBJECT_FOR_MAP);
+        return Yaml::parse($data);
     };
 }
