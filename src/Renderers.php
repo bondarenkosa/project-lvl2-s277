@@ -10,6 +10,9 @@ function getRenderer(string $format)
         },
         'plain' => function ($data) {
             return renderPlainDiff($data);
+        },
+        'json' => function ($data) {
+            return json_encode($data);
         }
     ];
 
